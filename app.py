@@ -89,7 +89,7 @@ html, body, [class*="css"] {
     border-radius: 14px;
     padding: 16px 18px 15px;
     position: relative; overflow: hidden;
-    transition: transform .15s ease, border-color .15s ease;
+    transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
     min-height: 92px;
 }
 .kpi-card:hover { transform: translateY(-2px); border-color: rgba(34,211,164,.3); }
@@ -167,6 +167,13 @@ html, body, [class*="css"] {
     border-bottom: 1px solid var(--border);
 }
 
+.sb-title {
+    color: var(--text) !important;
+}
+.sb-subtitle {
+    color: var(--muted) !important;
+}
+
 [data-testid="stMetric"] {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: 12px; padding: 12px 14px;
@@ -186,97 +193,163 @@ html, body, [class*="css"] {
 )
 
 # =========================================================
-# THEME OVERRIDE
+# THEME SYSTEM
 # =========================================================
-def apply_theme(theme):
+THEME_OPTIONS = ["Dark", "Light", "Purple"]
 
-    if theme == "Dark":
-        st.markdown("""
+THEME_CONFIG = {
+    "Dark": {
+        "bg": "#0b0f19",
+        "surface": "#111827",
+        "surface2": "#1a2235",
+        "border": "rgba(255,255,255,0.07)",
+        "text": "#e8edf5",
+        "muted": "#6b7a99",
+        "accent": "#22d3a4",
+        "accent2": "#3b82f6",
+        "danger": "#f87171",
+        "warn": "#fbbf24",
+        "hero": "linear-gradient(135deg, #0f2027 0%, #0b3d2e 50%, #0d2147 100%)",
+        "hero_text": "#ffffff",
+        "hero_subtext": "rgba(255,255,255,.58)",
+        "plot_template": "plotly_dark",
+        "plot_paper": "rgba(17,24,39,0)",
+        "plot_bg": "rgba(17,24,39,0)",
+        "plot_font": "#9aa5be",
+        "grid": "rgba(255,255,255,0.04)",
+        "zeroline": "rgba(255,255,255,0.07)",
+        "hover_bg": "#1a2235",
+    },
+    "Light": {
+        "bg": "#f7f9fc",
+        "surface": "#ffffff",
+        "surface2": "#eef2f7",
+        "border": "rgba(17,24,39,0.08)",
+        "text": "#111827",
+        "muted": "#6b7280",
+        "accent": "#2563eb",
+        "accent2": "#7c3aed",
+        "danger": "#ef4444",
+        "warn": "#f59e0b",
+        "hero": "linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 50%, #eef2ff 100%)",
+        "hero_text": "#111827",
+        "hero_subtext": "#374151",
+        "plot_template": "plotly_white",
+        "plot_paper": "rgba(255,255,255,0)",
+        "plot_bg": "rgba(255,255,255,0)",
+        "plot_font": "#4b5563",
+        "grid": "rgba(17,24,39,0.06)",
+        "zeroline": "rgba(17,24,39,0.08)",
+        "hover_bg": "#ffffff",
+    },
+    "Purple": {
+        "bg": "#14001f",
+        "surface": "#1f0033",
+        "surface2": "#2e0057",
+        "border": "rgba(167,139,250,0.15)",
+        "text": "#f3e8ff",
+        "muted": "#c4b5fd",
+        "accent": "#a78bfa",
+        "accent2": "#c084fc",
+        "danger": "#fb7185",
+        "warn": "#fbbf24",
+        "hero": "linear-gradient(135deg, #2e0057 0%, #1a0033 50%, #4b0082 100%)",
+        "hero_text": "#ffffff",
+        "hero_subtext": "rgba(255,255,255,.68)",
+        "plot_template": "plotly_dark",
+        "plot_paper": "rgba(20,0,31,0)",
+        "plot_bg": "rgba(20,0,31,0)",
+        "plot_font": "#e9d5ff",
+        "grid": "rgba(255,255,255,0.05)",
+        "zeroline": "rgba(255,255,255,0.08)",
+        "hover_bg": "#2e0057",
+    },
+}
+
+def get_theme_tokens(theme_name: str) -> dict:
+    return THEME_CONFIG.get(theme_name, THEME_CONFIG["Dark"])
+
+def apply_theme(theme_name: str) -> None:
+    t = get_theme_tokens(theme_name)
+    st.markdown(
+        f"""
         <style>
-        :root {
-          --bg: #0b0f19;
-          --surface: #111827;
-          --surface2: #1a2235;
-          --border: rgba(255,255,255,0.07);
-          --text: #e8edf5;
-          --muted: #6b7a99;
-          --accent: #22d3a4;
-          --accent2: #3b82f6;
-        }
+        :root {{
+          --bg: {t["bg"]};
+          --surface: {t["surface"]};
+          --surface2: {t["surface2"]};
+          --border: {t["border"]};
+          --text: {t["text"]};
+          --muted: {t["muted"]};
+          --accent: {t["accent"]};
+          --accent2: {t["accent2"]};
+          --danger: {t["danger"]};
+          --warn: {t["warn"]};
+        }}
 
-        .hero {
-            background: linear-gradient(135deg, #0f2027, #0b3d2e, #0d2147);
-        }
+        .stApp {{
+            background: var(--bg) !important;
+            color: var(--text) !important;
+        }}
+
+        .main .block-container {{
+            background: transparent !important;
+        }}
+
+        .hero {{
+            background: {t["hero"]} !important;
+        }}
+
+        .hero h1 {{
+            color: {t["hero_text"]} !important;
+        }}
+
+        .hero p {{
+            color: {t["hero_subtext"]} !important;
+        }}
+
+        [data-testid="stSidebar"] {{
+            background: var(--surface) !important;
+            border-right: 1px solid var(--border) !important;
+        }}
+
+        [data-testid="stSidebar"] * {{
+            color: var(--text) !important;
+        }}
+
+        h1, h2, h3, h4 {{
+            color: var(--text) !important;
+        }}
         </style>
-        """, unsafe_allow_html=True)
+        """,
+        unsafe_allow_html=True,
+    )
 
-    elif theme == "Light":
-        st.markdown("""
-        <style>
-        :root {
-          --bg: #ffffff;
-          --surface: #f5f7fb;
-          --surface2: #e9eef7;
-          --border: rgba(0,0,0,0.06);
-          --text: #111827;
-          --muted: #6b7280;
-          --accent: #2563eb;
-          --accent2: #7c3aed;
-        }
-
-        .hero {
-            background: linear-gradient(135deg, #e0f2fe, #f0f9ff, #eef2ff);
-        }
-
-        .hero h1 { color: #111827 !important; }
-        .hero p { color: #374151 !important; }
-        </style>
-        """, unsafe_allow_html=True)
-
-    elif theme == "Purple":
-        st.markdown("""
-        <style>
-        :root {
-          --bg: #14001f;
-          --surface: #1f0033;
-          --surface2: #2e0057;
-          --border: rgba(167,139,250,0.15);
-          --text: #f3e8ff;
-          --muted: #c4b5fd;
-          --accent: #a78bfa;
-          --accent2: #c084fc;
-        }
-
-        .hero {
-            background: linear-gradient(135deg, #2e0057, #1a0033, #4b0082);
-        }
-
-        .kpi-card:hover {
-            border-color: rgba(167,139,250,0.5);
-            box-shadow: 0 0 20px rgba(167,139,250,0.3);
-        }
-
-        h1, h2, h3 {
-            color: #c084fc !important;
-        }
-        </style>
-        """, unsafe_allow_html=True)
+def get_plot_layout(theme_name: str) -> dict:
+    t = get_theme_tokens(theme_name)
+    return dict(
+        template=t["plot_template"],
+        paper_bgcolor=t["plot_paper"],
+        plot_bgcolor=t["plot_bg"],
+        font=dict(family="DM Sans", color=t["plot_font"], size=11),
+        margin=dict(t=16, b=16, l=8, r=8),
+        xaxis=dict(gridcolor=t["grid"], zerolinecolor=t["zeroline"]),
+        yaxis=dict(gridcolor=t["grid"], zerolinecolor=t["zeroline"]),
+        hoverlabel=dict(
+            bgcolor=t["hover_bg"],
+            bordercolor=t["border"],
+            font=dict(family="DM Sans", size=12, color=t["text"]),
+        ),
+        legend=dict(
+            bgcolor="rgba(0,0,0,0)",
+            bordercolor="rgba(0,0,0,0)",
+            font=dict(size=11, color=t["text"]),
+        ),
+    )
 
 # =========================================================
 # PLOTLY THEME
 # =========================================================
-PLOT_LAYOUT = dict(
-    template="plotly_dark",
-    paper_bgcolor="rgba(17,24,39,0)",
-    plot_bgcolor="rgba(17,24,39,0)",
-    font=dict(family="DM Sans", color="#9aa5be", size=11),
-    margin=dict(t=16, b=16, l=8, r=8),
-    xaxis=dict(gridcolor="rgba(255,255,255,0.04)", zerolinecolor="rgba(255,255,255,0.07)"),
-    yaxis=dict(gridcolor="rgba(255,255,255,0.04)", zerolinecolor="rgba(255,255,255,0.07)"),
-    hoverlabel=dict(bgcolor="#1a2235", bordercolor="rgba(255,255,255,.12)", font=dict(family="DM Sans", size=12, color="#e8edf5")),
-    legend=dict(bgcolor="rgba(0,0,0,0)", bordercolor="rgba(0,0,0,0)", font=dict(size=11))
-)
-
 COLORS = {
     "green": "#22d3a4", "blue": "#3b82f6", "red": "#f87171",
     "yellow": "#fbbf24", "purple": "#a78bfa", "orange": "#fb923c",
@@ -379,6 +452,7 @@ defaults = {
     "bookmarks": [],
     "panel_open": True,
     "compare_mode": False,
+    "theme": "Dark",
 }
 for k, v in defaults.items():
     if k not in st.session_state:
@@ -396,17 +470,16 @@ def sec(title: str, note: str = "", color: str = "var(--accent)") -> None:
         unsafe_allow_html=True,
     )
 
-
 def apply_layout(fig, h: int = 320, legend_h: bool = False, **kwargs):
-    """Apply a consistent dark layout to plotly figures."""
-    layout = {**PLOT_LAYOUT, "height": h, **kwargs}
+    """Apply a consistent layout based on active theme."""
+    layout = {**get_plot_layout(st.session_state.get("theme", "Dark")), "height": h, **kwargs}
     if legend_h:
         layout["legend"] = {
-            **PLOT_LAYOUT.get("legend", {}),
+            **layout.get("legend", {}),
             "orientation": "h",
             "y": -0.22,
             "x": 0,
-            "font": {"size": 10},
+            "font": {"size": 10, "color": get_theme_tokens(st.session_state.get("theme", "Dark"))["text"]},
         }
     fig.update_layout(**layout)
     return fig
@@ -427,7 +500,6 @@ def format_delta(
     sign = "+" if val > 0 else "-"
     color = "green" if (val > 0) ^ reverse else "red"
     return f'<span style="color:{color}; font-weight:600;">{arrow} {sign}{abs(val):{fmt}}{suffix}</span>'
-
 
 def kpi(
     label: str,
@@ -492,7 +564,6 @@ def format_rupiah_auto(v, digits=2):
     else:
         return f"{sign}Rp {v:,.{digits}f}"
 
-
 def format_delta_display(v, unit="", digits=2):
     if v is None or (isinstance(v, float) and math.isnan(v)):
         return "—"
@@ -514,40 +585,31 @@ def clean_label(x) -> str:
         return str(x)
     return NAME_MAP.get(str(x).strip().upper(), str(x).strip().title())
 
-
 def non_country(df: pd.DataFrame) -> pd.DataFrame:
     if "Provinsi" not in df.columns:
         return df.copy()
     return df[~df["Provinsi"].astype(str).str.upper().isin({"INDONESIA"})].copy()
-
 
 def country_only(df: pd.DataFrame) -> pd.DataFrame:
     if "Provinsi" not in df.columns:
         return df.iloc[0:0].copy()
     return df[df["Provinsi"].astype(str).str.upper().isin({"INDONESIA", "INDONESIA"})].copy()
 
-
 def yr_filter(df: pd.DataFrame, y0: int, y1: int) -> pd.DataFrame:
     return df[(df["Tahun"] >= y0) & (df["Tahun"] <= y1)].copy()
-
 
 def years_of(df: pd.DataFrame) -> List[int]:
     return sorted([int(v) for v in df["Tahun"].dropna().unique()])
 
-
 def get_prov_list(df: pd.DataFrame) -> List[str]:
     return sorted(non_country(df)["Provinsi"].dropna().astype(str).unique().tolist())
-
 
 def map_indicator(indicator: str):
     """Returns (df[Provinsi,Tahun,value], title, colorscale, unit)"""
     if indicator == "PDRB/Kapita":
         df = non_country(pdrb)[["Provinsi", "Tahun", "PDRB_PerKapita_RibuRupiah"]].copy()
         df.rename(columns={"PDRB_PerKapita_RibuRupiah": "value"}, inplace=True)
-
-        # dari ribu rupiah -> rupiah penuh
         df["value"] = df["value"] * 1000
-
         return df, "PDRB/Kapita", "Teal", "Rp"
 
     if indicator == "Pengangguran (TPT)":
@@ -595,7 +657,6 @@ def render_bookmarks():
                 st.session_state.active_tab = b.get("tab", "summary")
                 st.rerun()
 
-
 def normalize_series(s: pd.Series, invert: bool = False) -> pd.Series:
     s = pd.to_numeric(s, errors="coerce")
     mn, mx = s.min(), s.max()
@@ -607,7 +668,6 @@ def normalize_series(s: pd.Series, invert: bool = False) -> pd.Series:
         out = 100 - out
     return out
 
-
 def safe_get_metric(df: pd.DataFrame, prov: str, yr: int, col: str) -> float:
     if df is None or df.empty:
         return np.nan
@@ -618,7 +678,6 @@ def safe_get_metric(df: pd.DataFrame, prov: str, yr: int, col: str) -> float:
         return np.nan
     ser = r[col].dropna()
     return float(ser.iloc[0]) if not ser.empty else np.nan
-
 
 def top_and_bottom_text(df: pd.DataFrame, value_col: str, label_col: str = "provinsi_name"):
     if df.empty:
@@ -674,15 +733,12 @@ def get_indicator_base_df(indicator_name: str) -> pd.DataFrame:
     if sheet == "penduduk":
         cols = ["Provinsi", "Tahun", ycol]
         df = non_country(penduduk)[cols].copy()
-        # Penduduk uses Title Case — normalize to UPPERCASE to match prov_list
         df["Provinsi"] = df["Provinsi"].astype(str).str.upper()
         return df.rename(columns={ycol: "value"})
 
     if sheet == "neraca":
         cols = ["Provinsi", "Tahun", ycol]
         df = non_country(neraca).copy()
-        # Neraca uses variant names (e.g. "NANGROE ACEH DARUSALAM", "D.I. YOGYAKARTA")
-        # Normalize via NAME_MAP then convert back to UPPERCASE to match prov_list
         df["Provinsi"] = (
             df["Provinsi"]
             .astype(str)
@@ -701,7 +757,6 @@ def forecast_linear(df: pd.DataFrame, horizon: int = 5) -> pd.DataFrame:
     df["Tahun"] = pd.to_numeric(df["Tahun"], errors="coerce")
     df = df.dropna(subset=["Tahun"])
     df["Tahun"] = df["Tahun"].astype(int)
-    # Deduplicate: if multiple rows per year, take mean
     df = df.groupby("Tahun", as_index=False)["value"].mean()
     if len(df) < 2:
         return pd.DataFrame()
@@ -739,27 +794,14 @@ def forecast_linear(df: pd.DataFrame, horizon: int = 5) -> pd.DataFrame:
     return pd.concat([hist, out], ignore_index=True)
 
 # =========================
-# HERO
-# =========================
-st.markdown(
-    """
-<div class="hero">
-  <h1>🇮🇩 Dashboard Ekonomi Indonesia</h1>
-  <p>Analisis interaktif indikator makroekonomi · 38 provinsi · 2016–2026 · Data: BPS · Hover chart untuk tooltip detail</p>
-</div>
-""",
-    unsafe_allow_html=True,
-)
-
-# =========================
 # SIDEBAR
 # =========================
 with st.sidebar:
-
     theme = st.selectbox(
         "🎨 Tema",
-        ["Dark", "Light", "Purple"],
-        key="theme"
+        THEME_OPTIONS,
+        index=THEME_OPTIONS.index(st.session_state.theme),
+        key="theme",
     )
 
     # =========================
@@ -769,8 +811,8 @@ with st.sidebar:
         """
     <div style="padding:18px 4px 8px;text-align:center;">
       <div style="font-size:38px;line-height:1">🇮🇩</div>
-      <div style="font-weight:700;font-size:16px;margin-top:8px;color:#e8edf5;">Ekonomi Indonesia</div>
-      <div style="font-size:11px;color:#6b7a99;margin-top:2px;">BPS · 2016–2026</div>
+      <div class="sb-title" style="font-weight:700;font-size:16px;margin-top:8px;">Ekonomi Indonesia</div>
+      <div class="sb-subtitle" style="font-size:11px;margin-top:2px;">BPS · 2016–2026</div>
     </div>
     """,
         unsafe_allow_html=True,
@@ -883,6 +925,24 @@ with st.sidebar:
     </div>""",
         unsafe_allow_html=True,
     )
+
+# =========================================================
+# APPLY THEME
+# =========================================================
+apply_theme(st.session_state.theme)
+
+# =========================
+# HERO
+# =========================
+st.markdown(
+    """
+<div class="hero">
+  <h1>🇮🇩 Dashboard Ekonomi Indonesia</h1>
+  <p>Analisis interaktif indikator makroekonomi · 38 provinsi · 2016–2026 · Data: BPS · Hover chart untuk tooltip detail</p>
+</div>
+""",
+    unsafe_allow_html=True,
+)
 
 # =========================
 # PAGE TITLE (ACTIVE TAB)
