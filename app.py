@@ -350,6 +350,18 @@ def get_plot_layout(theme_name: str) -> dict:
 # =========================================================
 # PLOTLY THEME
 # =========================================================
+PLOT_LAYOUT = dict(
+    template="plotly_dark",
+    paper_bgcolor="rgba(17,24,39,0)",
+    plot_bgcolor="rgba(17,24,39,0)",
+    font=dict(family="DM Sans", color="#9aa5be", size=11),
+    margin=dict(t=16, b=16, l=8, r=8),
+    xaxis=dict(gridcolor="rgba(255,255,255,0.04)", zerolinecolor="rgba(255,255,255,0.07)"),
+    yaxis=dict(gridcolor="rgba(255,255,255,0.04)", zerolinecolor="rgba(255,255,255,0.07)"),
+    hoverlabel=dict(bgcolor="#1a2235", bordercolor="rgba(255,255,255,.12)", font=dict(family="DM Sans", size=12, color="#e8edf5")),
+    legend=dict(bgcolor="rgba(0,0,0,0)", bordercolor="rgba(0,0,0,0)", font=dict(size=11))
+)
+
 COLORS = {
     "green": "#22d3a4", "blue": "#3b82f6", "red": "#f87171",
     "yellow": "#fbbf24", "purple": "#a78bfa", "orange": "#fb923c",
