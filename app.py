@@ -9,7 +9,6 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import streamlit as st
-import os
 
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
@@ -259,15 +258,10 @@ def load_data():
 
 @st.cache_data(show_spinner=False)
 def load_geojsons():
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-    g34_path = os.path.join(BASE_DIR, "Maps", "prov_34_fixed.geojson")
-    g38_path = os.path.join(BASE_DIR, "Maps", "38 Provinsi Indonesia - Provinsi.json")
-
-    with open(g34_path, encoding="utf-8") as f:
+    with open("Maps/prov 34_fixed.geojson", encoding="utf-8") as f:
         g34 = json.load(f)
 
-    with open(g38_path, encoding="utf-8") as f:
+    with open("Maps/38 Provinsi Indonesia - Provinsi.json", encoding="utf-8") as f:
         g38 = json.load(f)
 
     return g34, g38
