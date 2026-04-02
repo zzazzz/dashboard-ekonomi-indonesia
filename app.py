@@ -1941,7 +1941,7 @@ def render_ai():
         fig_f.add_vline(x=latest_year, line_dash="dot", line_color="rgba(255,255,255,0.35)")
         apply_layout(fig_f, h=300, yaxis=dict(title="Rp Ribu", gridcolor="rgba(255,255,255,0.04)"))
         st.plotly_chart(fig_f, use_container_width=True)
-        insight_callout("Forecast sederhana", [f"Proyeksi 5 tahun ke depan berdasarkan tren historis.", f"Prediksi {future_years[-1]}: <b>Rp {pred[-1]:,.0f} Ribu</b>"], tone="warn")
+        insight_callout("Forecast sederhana", [f"Proyeksi 5 tahun ke depan berdasarkan tren historis.", f"Prediksi {future_years[-1]}: <b>Rp {pred[-1]/1000:,.0f} Juta</b>"], tone="warn")
 
     st.markdown("<br>", unsafe_allow_html=True)
     sec("Clustering Provinsi — K-Means Otomatis", "PCA 2D + silhouette selection")
