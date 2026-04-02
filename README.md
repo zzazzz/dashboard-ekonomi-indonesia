@@ -12,7 +12,7 @@
 **Analisis interaktif indikator makroekonomi Indonesia**  
 **38 provinsi · 2016–2026 · Data BPS · 9 modul analisis**
 
-[🚀 Live Dashboard](#-live-demo) · [📸 Screenshots](#-screenshots) · [📦 Instalasi](#-instalasi-lokal) · [☁️ Deploy](#️-deployment) · [🎬 Screen Recording](#-soal-screen-recording-video-100-mb)
+[🚀 Live Demo](#-live-demo) · [🎬 Demo Video](#-demo-video) · [📸 Screenshots](#-screenshots) · [📦 Instalasi](#-instalasi-lokal) · [☁️ Deploy](#️-deployment)
 
 </div>
 
@@ -28,95 +28,71 @@
 ---
 
 ### 🗺️ Peta — Choropleth Interaktif Indonesia
-![Peta Choropleth](<img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/14e423f6-55f2-4d8f-9723-77150f07d006" />
-)
+![Peta Choropleth](https://github.com/user-attachments/assets/14e423f6-55f2-4d8f-9723-77150f07d006)
 
 > Visualisasi spasial seluruh provinsi dengan warna gradasi. Mendukung 5 indikator, pilihan tahun, skema warna (Teal/Reds/Purp/YlOrBr/OrRd), dan map style (carto-darkmatter dll). Hover di atas provinsi untuk nilai eksak.
 
 ---
 
+### 📈Tren
+![Tren](https://github.com/user-attachments/assets/7f99f651-b67a-4252-99bc-f216b5005991)
+
+> Alat untuk melihat pergerakan historis suatu indikator ekonomi dari tahun ke tahun, dengan kemampuan membandingkan beberapa provinsi secara bersamaan dalam satu chart.
+
+---
+
 ### ⚖️ Perbandingan — Ranking Seluruh Provinsi
-![Perbandingan Provinsi](assets/screenshot_perbandingan.png)
+![Perbandingan Provinsi](https://github.com/user-attachments/assets/4fab7010-2d5e-4695-b137-bd3219098f1a)
+
 
 > Bar chart seluruh 38 provinsi diurutkan berdasarkan indikator pilihan. DKI Jakarta memimpin jauh di PDRB/Kapita. Mode Ascending/Descending tersedia. Panel insight otomatis tampil di sidebar.
 
 ---
 
 ### 🌐 Neraca Perdagangan — Ekspor/Impor per Provinsi
-![Neraca Perdagangan](assets/screenshot_neraca.png)
+![Neraca Perdagangan](https://github.com/user-attachments/assets/33a1bc87-c71d-43c8-bb05-54480808682f)
 
 > KPI Total Ekspor ($282,909 Jt), Total Impor, Net Trade, dan Rasio Ekspor/Impor (1.17x) nasional. Chart Top 10 Surplus vs Top 10 Defisit berdampingan. Insight box memperingatkan bahwa defisit DKI Jakarta adalah fenomena struktural, bukan anomali.
 
 ---
 
 ### 👥 Penduduk — Demografi & Distribusi
-![Penduduk](assets/screenshot_penduduk.png)
+![Penduduk](https://github.com/user-attachments/assets/3dc9825b-293c-47ff-9fec-e4888753175f)
 
 > Total 287.2 juta jiwa (2026), kepadatan 152 jiwa/km², laju tumbuh 1.07%/tahun, provinsi terpadat: DKI Jakarta. Treemap distribusi populasi per provinsi + bar chart Top N (slider 5–38).
 
 ---
 
 ### 🔮 Forecast — Proyeksi Per Provinsi & Indikator
-![Forecast](assets/screenshot_forecast.png)
+![Forecast](https://github.com/user-attachments/assets/521af238-5062-4712-86ac-5b6016da64a6)
 
 > Forecast multi-indikator per provinsi dengan confidence interval (shaded area oranye). Pilihan provinsi, 17 indikator, dan horizon 1–10 tahun. Menggunakan Linear Regression dengan CI 95% berbasis residual std.
 
 ---
 
 ### 🤖 AI Analytics — Forecast Nasional & K-Means Clustering
-![AI Analytics Forecast](assets/screenshot_ai_forecast.png)
-![AI Analytics Clustering](assets/screenshot_ai_clustering.png)
+![AI Analytics Forecast](https://github.com/user-attachments/assets/ff3ea44e-e11c-47ee-afb0-df7635c4b288)
+
+![AI Analytics Clustering](https://github.com/user-attachments/assets/a4386344-6f2b-4abc-8466-ebcbca0c1021)
 
 > Sub-modul 1: Forecast PDRB nasional hingga 2030 (proyeksi Rp 101.402 Ribu). Sub-modul 2: K-Means otomatis berbasis PCA 2D — silhouette score memilih k optimal (k=6, score=0.293). Ukuran bubble = PDRB/Kapita. Z-score heatmap profil tiap cluster tersedia di bawah.
 
 ---
 
 ### ⋯ Lainnya — Korelasi, Export, Story Mode
-![Lainnya - Correlation Matrix](assets/screenshot_lainnya.png)
+![Lainnya - Correlation Matrix](https://github.com/user-attachments/assets/c40cf671-4699-46ee-af27-853f6f95bede)
 
 > Correlation matrix 4 indikator (PDRB, TPT, Kemiskinan, Gini) dengan interpretasi warna RdBu. PDRB vs Kemiskinan: r = -0.316 (korelasi negatif sedang). Sub-tab lain: Export CSV semua dataset, dan Story Mode narasi otomatis kondisi ekonomi Indonesia.
 
 ---
 
-## 🎬 Soal Screen Recording (Video >100 MB)
+## 🎬 Demo Video
 
-GitHub menolak file >100 MB di repository biasa. Berikut 3 solusi:
+Klik thumbnail di bawah untuk menonton demo lengkap dashboard secara langsung:
 
-### ✅ Solusi 1 — YouTube (Paling Direkomendasikan)
+[![Demo Dashboard Ekonomi Indonesia](https://img.youtube.com/vi/RfuxN57BfF0/maxresdefault.jpg)](https://youtu.be/RfuxN57BfF0)
 
-Upload video ke YouTube sebagai **Unlisted**, lalu embed thumbnail klik-able di README:
-
-```markdown
-[![Demo Dashboard](https://img.youtube.com/vi/VIDEO_ID/maxresdefault.jpg)](https://youtu.be/VIDEO_ID)
-```
-
-Klik thumbnail → langsung buka YouTube. Terlihat profesional dan tidak membebani repo sama sekali.
-
-### ✅ Solusi 2 — Kompres dengan FFmpeg (tetap di repo)
-
-```bash
-# Kurangi ukuran dari ~100MB menjadi ~10–15MB
-ffmpeg -i demo_original.mp4 -vcodec libx264 -crf 28 -preset fast demo.mp4
-
-# Atau potong ke resolusi 720p
-ffmpeg -i demo_original.mp4 -vf scale=1280:720 -crf 28 demo_720p.mp4
-```
-
-File di bawah 100 MB bisa langsung di-push tanpa LFS.
-
-### ✅ Solusi 3 — Git LFS (video tetap di GitHub)
-
-```bash
-git lfs install
-git lfs track "*.mp4"
-git add .gitattributes
-git commit -m "chore: setup git lfs"
-git add demo.mp4
-git commit -m "docs: add screen recording"
-git push
-```
-
-> LFS gratis hingga **1 GB storage** dan **1 GB bandwidth/bulan** di GitHub.
+> Video mencakup walkthrough semua 9 tab: Ringkasan, Peta Choropleth, Tren, Perbandingan, Neraca, Penduduk, Forecast, AI Analytics, dan Lainnya.
 
 ---
 
