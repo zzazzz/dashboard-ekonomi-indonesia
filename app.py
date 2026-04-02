@@ -819,7 +819,7 @@ def render_summary():
     c1, c2, c3, c4, c5 = st.columns(5)
     with c1:
         st.markdown(kpi("PDRB per Kapita", f"Rp {v_pdrb:,.0f}" if v_pdrb else "—",
-                       f"Ribu Rupiah · {pdrb_ly}", d_pdrb, "%"), unsafe_allow_html=True)
+                       f"{pdrb_ly}", d_pdrb, "%"), unsafe_allow_html=True)
     with c2:
         st.markdown(kpi("Pengangguran TPT", f"{v_tpt:.2f}%" if v_tpt else "—",
                        f"Agustus {tpt_ly}", d_tpt, "%"), unsafe_allow_html=True)
@@ -828,7 +828,7 @@ def render_summary():
                        "Maret · Nasional", d_msk, "%"), unsafe_allow_html=True)
     with c4:
         st.markdown(kpi("Gini Ratio", f"{v_gini:.3f}" if v_gini else "—",
-                       "Perkotaan+Perdesaan", d_gini, "", delta_fmt=".3f"), unsafe_allow_html=True)
+                       "Kota+Desa", d_gini, "", delta_fmt=".3f"), unsafe_allow_html=True)
     with c5:
         st.markdown(kpi("Inflasi YoY", f"{v_inf:.2f}%" if v_inf else "—",
                        f"Rata-rata {inf_nat['Tahun'].max() if not inf_nat.empty else '—'}", d_inf, "%"), unsafe_allow_html=True)
