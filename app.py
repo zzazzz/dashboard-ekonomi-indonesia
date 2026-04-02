@@ -105,7 +105,7 @@ html, body, [class*="css"] {
     color: var(--muted); margin-bottom: 10px;
 }
 .kpi-value {
-    font-size: 26px; font-weight: 700; line-height: 1;
+    font-size: 23px; font-weight: 700; line-height: 1;
     margin-bottom: 6px; color: var(--text);
     font-family: 'DM Mono', monospace;
 }
