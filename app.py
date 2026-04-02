@@ -884,8 +884,8 @@ def render_summary():
     # KPI cards – now all use reverse=False (positive = green ▲, negative = red ▼)
     c1, c2, c3, c4, c5 = st.columns(5)
     with c1:
-        st.markdown(kpi("PDRB per Kapita (Ribuan)", f"Rp {v_pdrb:,.0f}" if v_pdrb else "—",
-                       f"{pdrb_ly}", d_pdrb, "%"), unsafe_allow_html=True)
+        st.markdown(kpi("PDRB per Kapita", f"Rp {v_pdrb:,.0f}" if v_pdrb else "—",
+                       f"dalam (ribuan) {pdrb_ly}", d_pdrb, "%"), unsafe_allow_html=True)
     with c2:
         st.markdown(kpi("Pengangguran TPT", f"{v_tpt:.2f}%" if v_tpt else "—",
                        f"Agustus {tpt_ly}", d_tpt, "%"), unsafe_allow_html=True)
@@ -1093,7 +1093,7 @@ def render_map():
         color_continuous_scale=cs,
         range_color=(float(df_map["value"].min()), float(df_map["value"].max())),
         mapbox_style=mapbox_style,
-        zoom=3.8,
+        zoom=3.6,
         center={"lat": -2.5, "lon": 118},
         opacity=0.88,
         labels={"value": title},
