@@ -738,8 +738,6 @@ def forecast_linear(df: pd.DataFrame, horizon: int = 5) -> pd.DataFrame:
     hist["type"] = "Actual"
     return pd.concat([hist, out], ignore_index=True)
 
-apply_theme(theme)
-
 # =========================
 # HERO
 # =========================
