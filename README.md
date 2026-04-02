@@ -20,12 +20,8 @@
 
 ## 📸 Screenshots
 
-> Screenshot diambil langsung dari aplikasi yang berjalan di `localhost:8501`.  
-> Untuk pengalaman interaktif penuh, jalankan secara lokal atau buka Live Demo.
-
 ### 📊 Ringkasan — KPI Nasional & Tren Utama
-![Ringkasan](<img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/9eaa2448-3ec0-4c91-96c1-ddd0da8f7409" />
-)
+![Ringkasan](https://github.com/user-attachments/assets/9eaa2448-3ec0-4c91-96c1-ddd0da8f7409)
 
 > Halaman utama dengan 5 KPI card nasional (PDRB/Kapita, TPT, Kemiskinan, Gini Ratio, Inflasi YoY), dilengkapi delta YoY berwarna hijau/merah. Di bawahnya dual chart: Tren PDRB per Kapita dan TPT & Kemiskinan Nasional. Filter rentang tahun (2016–2025) tersedia di atas.
 
