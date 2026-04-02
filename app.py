@@ -398,6 +398,39 @@ def fmt_v(v, digits=2, suffix=""):
         return "—"
     return f"{v:,.{digits}f}{suffix}"
 
+def format_rupiah_auto(v, digits=2):
+    if v is None or (isinstance(v, float) and math.isnan(v)):
+        return "—"
+
+    v = float(v)
+    sign = "-" if v < 0 else ""
+    v = abs(v)
+
+    if v >= 1_000_000_000:
+        return f"{sign}Rp {v/1_000_000_000:,.{digits}f} Miliar"
+    elif v >= 1_000_000:
+        return f"{sign}Rp {v/1_000_000:,.{digits}f} Juta"
+    elif v >= 1_000:
+        return f"{sign}Rp {v/1_000:,.{digits}f} Ribu"
+    else:
+        return f"{sign}Rp {v:,.{digits}f}"
+
+
+def format_delta_display(v, unit="", digits=2):
+    if v is None or (isinstance(v, float) and math.isnan(v)):
+        return "—"
+
+    if unit == "Rp":
+        sign = "+" if v >= 0 else "-"
+        return f"{sign}{format_rupiah_auto(abs(v), digits)}"
+
+    if unit == "%":
+        return f"{v:+.{digits}f}%"
+
+    if unit:
+        return f"{v:+.{digits}f} {unit}"
+
+    return f"{v:+.{digits}f}"
 
 def clean_label(x) -> str:
     if x is None or (isinstance(x, float) and math.isnan(x)):
@@ -434,23 +467,42 @@ def map_indicator(indicator: str):
     if indicator == "PDRB/Kapita":
         df = non_country(pdrb)[["Provinsi", "Tahun", "PDRB_PerKapita_RibuRupiah"]].copy()
         df.rename(columns={"PDRB_PerKapita_RibuRupiah": "value"}, inplace=True)
-        return df, "PDRB/Kapita (Rp Ribu)", "Teal", "Rp Ribu"
+
+        # dari ribu rupiah -> rupiah penuh
+        df["value"] = df["value"] * 1000
+
+        return df, "PDRB/Kapita", "Teal", "Rp"
+
     if indicator == "Pengangguran (TPT)":
-        df = tpt[(tpt["Periode"] == "Agustus") & (tpt["Provinsi"].str.upper() != "INDONESIA")][["Provinsi", "Tahun", "TPT_Persen"]].copy()
+        df = tpt[
+            (tpt["Periode"] == "Agustus") &
+            (tpt["Provinsi"].str.upper() != "INDONESIA")
+        ][["Provinsi", "Tahun", "TPT_Persen"]].copy()
         df.rename(columns={"TPT_Persen": "value"}, inplace=True)
         return df, "TPT (%)", "Reds", "%"
+
     if indicator == "Kemiskinan":
-        df = miskin[(miskin["Daerah"] == "Jumlah") & (miskin["Semester"] == "Semester 1 (Maret)") & (miskin["Provinsi"].str.upper() != "INDONESIA")][["Provinsi", "Tahun", "Persen_Penduduk_Miskin"]].copy()
+        df = miskin[
+            (miskin["Daerah"] == "Jumlah") &
+            (miskin["Semester"] == "Semester 1 (Maret)") &
+            (miskin["Provinsi"].str.upper() != "INDONESIA")
+        ][["Provinsi", "Tahun", "Persen_Penduduk_Miskin"]].copy()
         df.rename(columns={"Persen_Penduduk_Miskin": "value"}, inplace=True)
         return df, "Kemiskinan (%)", "Purp", "%"
+
     if indicator == "Gini Ratio":
-        df = gini[(gini["Daerah"] == "Perkotaan+Perdesaan") & (gini["Semester"] == "Semester 1 (Maret)") & (gini["Provinsi"].str.upper() != "INDONESIA")][["Provinsi", "Tahun", "Gini_Ratio"]].copy()
+        df = gini[
+            (gini["Daerah"] == "Perkotaan+Perdesaan") &
+            (gini["Semester"] == "Semester 1 (Maret)") &
+            (gini["Provinsi"].str.upper() != "INDONESIA")
+        ][["Provinsi", "Tahun", "Gini_Ratio"]].copy()
         df.rename(columns={"Gini_Ratio": "value"}, inplace=True)
         return df, "Gini Ratio", "YlOrBr", ""
-    df = inflasi[inflasi["Provinsi"].str.upper() != "INDONESIA"].groupby(["Provinsi", "Tahun"], as_index=False)["Inflasi_YoY_Persen"].mean()
+
+    df = inflasi[inflasi["Provinsi"].str.upper() != "INDONESIA"] \
+        .groupby(["Provinsi", "Tahun"], as_index=False)["Inflasi_YoY_Persen"].mean()
     df.rename(columns={"Inflasi_YoY_Persen": "value"}, inplace=True)
     return df, "Inflasi YoY (%)", "OrRd", "%"
-
 
 def render_bookmarks():
     if not st.session_state.bookmarks:
