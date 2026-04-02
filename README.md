@@ -311,45 +311,6 @@ git push -u origin main
 
 ---
 
-### 🐳 Docker (VPS / Self-hosted)
-
-```dockerfile
-FROM python:3.11-slim
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-COPY . .
-EXPOSE 8501
-CMD ["streamlit", "run", "app.py", \
-     "--server.port=8501", "--server.address=0.0.0.0", "--server.headless=true"]
-```
-
-```bash
-docker build -t indonesia-dashboard .
-docker run -p 8501:8501 indonesia-dashboard
-```
-
----
-
-### 📝 `.streamlit/config.toml` (Opsional — Sesuaikan Tema)
-
-```toml
-[server]
-headless = true
-enableCORS = false
-port = 8501
-
-[theme]
-base = "dark"
-primaryColor = "#22d3a4"
-backgroundColor = "#0b0f19"
-secondaryBackgroundColor = "#111827"
-textColor = "#e8edf5"
-font = "sans serif"
-```
-
----
-
 ## 🛠️ Tech Stack
 
 | Komponen | Library / Tool |
