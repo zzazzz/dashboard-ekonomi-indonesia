@@ -105,7 +105,7 @@ html, body, [class*="css"] {
     color: var(--muted); margin-bottom: 10px;
 }
 .kpi-value {
-    font-size: 20px; font-weight: 700; line-height: 1;
+    font-size: 23px; font-weight: 700; line-height: 1;
     margin-bottom: 6px; color: var(--text);
     font-family: 'DM Mono', monospace;
 }
@@ -884,7 +884,7 @@ def render_summary():
     # KPI cards – now all use reverse=False (positive = green ▲, negative = red ▼)
     c1, c2, c3, c4, c5 = st.columns(5)
     with c1:
-        st.markdown(kpi("PDRB per Kapita", f"Rp {v_pdrb:,.0f} Ribu" if v_pdrb else "—",
+        st.markdown(kpi("PDRB per Kapita", f"Rp {v_pdrb:,.0f}" if v_pdrb else "—",
                        f"{pdrb_ly}", d_pdrb, "%"), unsafe_allow_html=True)
     with c2:
         st.markdown(kpi("Pengangguran TPT", f"{v_tpt:.2f}%" if v_tpt else "—",
