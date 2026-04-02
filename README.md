@@ -393,11 +393,8 @@ font = "sans serif"
 ## 🚀 Live Demo
 
 ```
-🔗 https://<username>-indonesia-dashboard.streamlit.app
+🔗 https://dashboard-ekonomi-indonesia.streamlit.app/
 ```
-
-*(Ganti dengan URL asli setelah deploy ke Streamlit Community Cloud)*
-
 ---
 
 ## 👤 Author
