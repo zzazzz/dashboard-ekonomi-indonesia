@@ -544,11 +544,23 @@ def get_indicator_base_df(indicator_name: str) -> pd.DataFrame:
 
     if sheet == "penduduk":
         cols = ["Provinsi", "Tahun", ycol]
-        return non_country(penduduk)[cols].rename(columns={ycol: "value"}).copy()
+        df = non_country(penduduk)[cols].copy()
+        # Penduduk uses Title Case — normalize to UPPERCASE to match prov_list
+        df["Provinsi"] = df["Provinsi"].astype(str).str.upper()
+        return df.rename(columns={ycol: "value"})
 
     if sheet == "neraca":
         cols = ["Provinsi", "Tahun", ycol]
-        df = non_country(neraca)
+        df = non_country(neraca).copy()
+        # Neraca uses variant names (e.g. "NANGROE ACEH DARUSALAM", "D.I. YOGYAKARTA")
+        # Normalize via NAME_MAP then convert back to UPPERCASE to match prov_list
+        df["Provinsi"] = (
+            df["Provinsi"]
+            .astype(str)
+            .str.strip()
+            .str.upper()
+            .map(lambda x: NAME_MAP.get(x, x).upper())
+        )
         if ycol in df.columns:
             return df[cols].rename(columns={ycol: "value"}).copy()
         return pd.DataFrame(columns=["Provinsi", "Tahun", "value"])
@@ -560,14 +572,16 @@ def forecast_linear(df: pd.DataFrame, horizon: int = 5) -> pd.DataFrame:
     df["Tahun"] = pd.to_numeric(df["Tahun"], errors="coerce")
     df = df.dropna(subset=["Tahun"])
     df["Tahun"] = df["Tahun"].astype(int)
-    if len(df) < 3:
+    # Deduplicate: if multiple rows per year, take mean
+    df = df.groupby("Tahun", as_index=False)["value"].mean()
+    if len(df) < 2:
         return pd.DataFrame()
 
     X = df[["Tahun"]].values
     y = pd.to_numeric(df["value"], errors="coerce").values
     ok = ~np.isnan(y)
     X, y = X[ok], y[ok]
-    if len(y) < 3:
+    if len(y) < 2:
         return pd.DataFrame()
 
     model = LinearRegression()
