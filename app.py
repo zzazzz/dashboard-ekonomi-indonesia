@@ -1252,28 +1252,30 @@ def render_map():
         center={"lat": -2.5, "lon": 118},
         opacity=0.88,
         labels={"value": title},
-        custom_data=["rank", "share", "delta_display", "provinsi_name", "value_display"]
+        custom_data=["rank", "share", "delta_display", "provinsi_name", "value_display"]   # ← kunci
     )
 
+    # Update hovertemplate sesuai indikator
     if is_pdrb:
         hovertemplate = (
-            "<b>%{{customdata[3]}}</b><br>"
+            "<b>%{customdata[3]}</b><br>"
             f"{title}: <b>%{{customdata[4]}}</b><br>"
-            "Rank Nasional: <b>#%{{customdata[0]}}</b> dari " + str(len(df_map)) + "<br>"
-            "Share: <b>%{{customdata[1]:.2f}}%</b><br>"
-            "vs rata-rata: <b>%{{customdata[2]}}</b><extra></extra>"
+            "Rank Nasional: <b>#%{customdata[0]}</b> dari " + str(len(df_map)) + "<br>"
+            "Share: <b>%{customdata[1]:.2f}%</b><br>"
+            "vs rata-rata: <b>%{customdata[2]}</b><extra></extra>"
         )
     else:
         hovertemplate = (
-            "<b>%{{customdata[3]}}</b><br>"
+            "<b>%{customdata[3]}</b><br>"
             f"{title}: <b>%{{z:,.2f}} {unit}</b><br>"
-            "Rank Nasional: <b>#%{{customdata[0]}}</b> dari " + str(len(df_map)) + "<br>"
-            "Share: <b>%{{customdata[1]:.2f}}%</b><br>"
-            "vs rata-rata: <b>%{{customdata[2]}}</b><extra></extra>"
+            "Rank Nasional: <b>#%{customdata[0]}</b> dari " + str(len(df_map)) + "<br>"
+            "Share: <b>%{customdata[1]:.2f}%</b><br>"
+            "vs rata-rata: <b>%{customdata[2]}</b><extra></extra>"
         )
 
     fig_map.update_traces(hovertemplate=hovertemplate)
 
+    # Layout (sama seperti sebelumnya)
     fig_map.update_layout(
         margin={"r": 0, "t": 0, "l": 0, "b": 0},
         height=540,
@@ -1534,12 +1536,31 @@ def render_comparison():
         inflasi_agg = inflasi.groupby(["Provinsi", "Tahun"], as_index=False)["Inflasi_YoY_Persen"].mean()
 
         metric_defs = [
-            ("Rp", "PDRB/Kapita", non_country(pdrb)[pdrb["Tahun"] == yr_cmp][["Provinsi", "PDRB_PerKapita_RibuRupiah"]].rename(columns={"PDRB_PerKapita_RibuRupiah": "Nilai"}), False),
-            ("TPT (%)", non_country(tpt)[(non_country(tpt)["Periode"] == "Agustus") & (non_country(tpt)["Tahun"] == yr_cmp)][["Provinsi", "TPT_Persen"]].rename(columns={"TPT_Persen": "Nilai"}), True, "%"),
-            ("Kemiskinan (%)", non_country(miskin)[(non_country(miskin)["Daerah"] == "Jumlah") & (non_country(miskin)["Semester"] == "Semester 1 (Maret)") & (non_country(miskin)["Tahun"] == yr_cmp)][["Provinsi", "Persen_Penduduk_Miskin"]].rename(columns={"Persen_Penduduk_Miskin": "Nilai"}), True, "%"),
-            ("Gini", non_country(gini)[(non_country(gini)["Daerah"] == "Perkotaan+Perdesaan") & (non_country(gini)["Semester"] == "Semester 1 (Maret)") & (non_country(gini)["Tahun"] == yr_cmp)][["Provinsi", "Gini_Ratio"]].rename(columns={"Gini_Ratio": "Nilai"}), True, ""),
-            ("Inflasi (%)", inflasi_agg[inflasi_agg["Tahun"] == yr_cmp][["Provinsi", "Inflasi_YoY_Persen"]].rename(columns={"Inflasi_YoY_Persen": "Nilai"}), True, "%"),
-        ]
+                        ("PDRB/Kapita",
+                        non_country(pdrb)[pdrb["Tahun"] == yr_cmp][["Provinsi", "PDRB_PerKapita_RibuRupiah"]]
+                            .rename(columns={"PDRB_PerKapita_RibuRupiah": "Nilai"}),
+                        False, "Rp"),
+                        ("TPT (%)",
+                        non_country(tpt)[(non_country(tpt)["Periode"] == "Agustus") & (non_country(tpt)["Tahun"] == yr_cmp)]
+                            [["Provinsi", "TPT_Persen"]].rename(columns={"TPT_Persen": "Nilai"}),
+                        True, "%"),
+                        ("Kemiskinan (%)",
+                        non_country(miskin)[(non_country(miskin)["Daerah"] == "Jumlah") &
+                                            (non_country(miskin)["Semester"] == "Semester 1 (Maret)") &
+                                            (non_country(miskin)["Tahun"] == yr_cmp)]
+                            [["Provinsi", "Persen_Penduduk_Miskin"]].rename(columns={"Persen_Penduduk_Miskin": "Nilai"}),
+                        True, "%"),
+                        ("Gini",
+                        non_country(gini)[(non_country(gini)["Daerah"] == "Perkotaan+Perdesaan") &
+                                        (non_country(gini)["Semester"] == "Semester 1 (Maret)") &
+                                        (non_country(gini)["Tahun"] == yr_cmp)]
+                            [["Provinsi", "Gini_Ratio"]].rename(columns={"Gini_Ratio": "Nilai"}),
+                        True, ""),
+                        ("Inflasi (%)",
+                        inflasi_agg[inflasi_agg["Tahun"] == yr_cmp][["Provinsi", "Inflasi_YoY_Persen"]]
+                            .rename(columns={"Inflasi_YoY_Persen": "Nilai"}),
+                        True, "%"),
+                    ]
 
         radar_rows = []
         raw_rows = []
