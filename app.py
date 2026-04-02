@@ -28,6 +28,47 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+def apply_theme(theme):
+    if theme == "Dark":
+        st.markdown("""
+        <style>
+        :root {
+          --bg: #0b0f19;
+          --surface: #111827;
+          --surface2: #1a2235;
+          --text: #e8edf5;
+          --muted: #6b7a99;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+
+    elif theme == "Light":
+        st.markdown("""
+        <style>
+        :root {
+          --bg: #ffffff;
+          --surface: #f5f7fb;
+          --surface2: #e9eef7;
+          --text: #111827;
+          --muted: #6b7280;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+
+    elif theme == "Purple":
+        st.markdown("""
+        <style>
+        :root {
+          --bg: #14001f;
+          --surface: #1f0033;
+          --surface2: #2e0057;
+          --text: #f3e8ff;
+          --muted: #c4b5fd;
+          --accent: #a78bfa;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+
 # =========================================================
 # CSS
 # =========================================================
@@ -661,6 +702,8 @@ def forecast_linear(df: pd.DataFrame, horizon: int = 5) -> pd.DataFrame:
     hist["type"] = "Actual"
     return pd.concat([hist, out], ignore_index=True)
 
+apply_theme(theme)
+
 # =========================
 # HERO
 # =========================
@@ -678,6 +721,12 @@ st.markdown(
 # SIDEBAR
 # =========================
 with st.sidebar:
+
+    theme = st.selectbox(
+        "🎨 Tema",
+        ["Dark", "Light", "Purple"],
+        key="theme"
+    )
 
     # =========================
     # HEADER
