@@ -28,47 +28,6 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-def apply_theme(theme):
-    if theme == "Dark":
-        st.markdown("""
-        <style>
-        :root {
-          --bg: #0b0f19;
-          --surface: #111827;
-          --surface2: #1a2235;
-          --text: #e8edf5;
-          --muted: #6b7a99;
-        }
-        </style>
-        """, unsafe_allow_html=True)
-
-    elif theme == "Light":
-        st.markdown("""
-        <style>
-        :root {
-          --bg: #ffffff;
-          --surface: #f5f7fb;
-          --surface2: #e9eef7;
-          --text: #111827;
-          --muted: #6b7280;
-        }
-        </style>
-        """, unsafe_allow_html=True)
-
-    elif theme == "Purple":
-        st.markdown("""
-        <style>
-        :root {
-          --bg: #14001f;
-          --surface: #1f0033;
-          --surface2: #2e0057;
-          --text: #f3e8ff;
-          --muted: #c4b5fd;
-          --accent: #a78bfa;
-        }
-        </style>
-        """, unsafe_allow_html=True)
-        
 # =========================================================
 # CSS
 # =========================================================
@@ -225,6 +184,83 @@ html, body, [class*="css"] {
 """,
     unsafe_allow_html=True,
 )
+
+# =========================================================
+# THEME OVERRIDE
+# =========================================================
+def apply_theme(theme):
+
+    if theme == "Dark":
+        st.markdown("""
+        <style>
+        :root {
+          --bg: #0b0f19;
+          --surface: #111827;
+          --surface2: #1a2235;
+          --border: rgba(255,255,255,0.07);
+          --text: #e8edf5;
+          --muted: #6b7a99;
+          --accent: #22d3a4;
+          --accent2: #3b82f6;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #0f2027, #0b3d2e, #0d2147);
+        }
+        </style>
+        """, unsafe_allow_html=True)
+
+    elif theme == "Light":
+        st.markdown("""
+        <style>
+        :root {
+          --bg: #ffffff;
+          --surface: #f5f7fb;
+          --surface2: #e9eef7;
+          --border: rgba(0,0,0,0.06);
+          --text: #111827;
+          --muted: #6b7280;
+          --accent: #2563eb;
+          --accent2: #7c3aed;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #e0f2fe, #f0f9ff, #eef2ff);
+        }
+
+        .hero h1 { color: #111827 !important; }
+        .hero p { color: #374151 !important; }
+        </style>
+        """, unsafe_allow_html=True)
+
+    elif theme == "Purple":
+        st.markdown("""
+        <style>
+        :root {
+          --bg: #14001f;
+          --surface: #1f0033;
+          --surface2: #2e0057;
+          --border: rgba(167,139,250,0.15);
+          --text: #f3e8ff;
+          --muted: #c4b5fd;
+          --accent: #a78bfa;
+          --accent2: #c084fc;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #2e0057, #1a0033, #4b0082);
+        }
+
+        .kpi-card:hover {
+            border-color: rgba(167,139,250,0.5);
+            box-shadow: 0 0 20px rgba(167,139,250,0.3);
+        }
+
+        h1, h2, h3 {
+            color: #c084fc !important;
+        }
+        </style>
+        """, unsafe_allow_html=True)
 
 # =========================================================
 # PLOTLY THEME
@@ -701,6 +737,8 @@ def forecast_linear(df: pd.DataFrame, horizon: int = 5) -> pd.DataFrame:
     hist["upper"] = np.nan
     hist["type"] = "Actual"
     return pd.concat([hist, out], ignore_index=True)
+
+apply_theme(theme)
 
 # =========================
 # HERO
