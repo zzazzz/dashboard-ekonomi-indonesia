@@ -30,7 +30,7 @@ st.set_page_config(
 st.markdown("""
 <style>
 .main .block-container {
-    max-width: 100% !important;
+    max-width: 1600px;
     padding-left: 2rem;
     padding-right: 2rem;
 }
