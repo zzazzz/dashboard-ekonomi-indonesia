@@ -1003,7 +1003,7 @@ def render_map():
         locations="provinsi_name", featureidkey="properties.PROVINSI",
         color="value", color_continuous_scale=cs,
         range_color=(float(df_map["value"].min()), float(df_map["value"].max())),
-        mapbox_style=mapbox_style, zoom=3.6, center={"lat": -2.5, "lon": 118},
+        mapbox_style=mapbox_style, zoom=3.8, center={"lat": -2.5, "lon": 118},
         opacity=0.88, labels={"value": title},
         custom_data=["rank", "share", "delta_vs_mean", "provinsi_name"]
     )
@@ -1025,8 +1025,7 @@ def render_map():
             tickfont=dict(color="#9aa5be"),
             bgcolor="rgba(17,24,39,0.82)",
             bordercolor="rgba(255,255,255,.1)", borderwidth=1,
-        ),
-        uirevision=True
+        )
     )
     st.plotly_chart(fig_map, use_container_width=True)
 
@@ -1049,7 +1048,7 @@ def render_map():
         sec("Ranking Provinsi", f"{len(df_map)} provinsi")
         df_rank = df_map[["rank", "provinsi_name", "value", "share"]].sort_values("rank").copy()
         df_rank.columns = ["Rank", "Provinsi", title, "Share (%)"]
-        df_rank = df_rank.set_index("Rank")
+        df_rank = df_rank.reset_index(drop=True)
         st.dataframe(
             df_rank.style.background_gradient(cmap="coolwarm", subset=[title]).format({"Rank": "{:.0f}", title: "{:.2f}", "Share (%)": "{:.2f}"}),
             use_container_width=True, height=320,
