@@ -68,7 +68,7 @@ def apply_theme(theme):
         }
         </style>
         """, unsafe_allow_html=True)
-
+        
 # =========================================================
 # CSS
 # =========================================================
@@ -701,8 +701,6 @@ def forecast_linear(df: pd.DataFrame, horizon: int = 5) -> pd.DataFrame:
     hist["upper"] = np.nan
     hist["type"] = "Actual"
     return pd.concat([hist, out], ignore_index=True)
-
-apply_theme(theme)
 
 # =========================
 # HERO
