@@ -28,6 +28,48 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+theme = st.sidebar.selectbox(
+    "🎨 Tema",
+    ["Dark", "Light", "Purple"]
+)
+
+def apply_theme(theme):
+    if theme == "Dark":
+        st.markdown("""
+        <style>
+        .stApp {
+            background-color: #0e1117;
+            color: #fafafa;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+
+    elif theme == "Light":
+        st.markdown("""
+        <style>
+        .stApp {
+            background-color: #ffffff;
+            color: #000000;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+
+    elif theme == "Purple":
+        st.markdown("""
+        <style>
+        .stApp {
+            background: linear-gradient(135deg, #1a0033, #4b0082);
+            color: white;
+        }
+
+        section[data-testid="stSidebar"] {
+            background: linear-gradient(180deg, #2e0057, #1a0033);
+        }
+        </style>
+        """, unsafe_allow_html=True)
+
+apply_theme(theme)
+
 # =========================================================
 # CSS
 # =========================================================
