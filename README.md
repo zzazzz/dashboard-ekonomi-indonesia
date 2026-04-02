@@ -328,7 +328,7 @@ git push -u origin main
 ## 🚀 Live Dashboard
 
 ```
-🔗 https://dashboard-ekonomi-indonesia.streamlit.app/
+https://dashboard-ekonomi-indonesia.streamlit.app/
 ```
 ---
 
