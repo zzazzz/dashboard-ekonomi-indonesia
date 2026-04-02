@@ -27,7 +27,15 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
 )
-
+st.markdown("""
+<style>
+.main .block-container {
+    max-width: 100% !important;
+    padding-left: 2rem;
+    padding-right: 2rem;
+}
+</style>
+""", unsafe_allow_html=True)
 # =========================================================
 # CSS
 # =========================================================
