@@ -1051,7 +1051,7 @@ def render_map():
         df_rank.columns = ["Rank", "Provinsi", title, "Share (%)"]
         df_rank = df_rank.set_index("Rank")
         st.dataframe(
-            df_rank.style.background_gradient(cmap="coolwarm", subset=[title]).format({"Rank": "{:.0f}", title: "{:.2f}", "Share (%)": "{:.2f}"})),
+            df_rank.style.background_gradient(cmap="coolwarm", subset=[title]).format({"Rank": "{:.0f}", title: "{:.2f}", "Share (%)": "{:.2f}"}),
             use_container_width=True, height=320,
         )
 
