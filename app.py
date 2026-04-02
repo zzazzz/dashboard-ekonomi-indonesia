@@ -832,7 +832,7 @@ def render_summary():
     # KPI cards – now all use reverse=False (positive = green ▲, negative = red ▼)
     c1, c2, c3, c4, c5 = st.columns(5)
     with c1:
-        st.markdown(kpi("PDRB per Kapita", f"Rp {v_pdrb:,.0f}" if v_pdrb else "—",
+        st.markdown(kpi("PDRB per Kapita (Ribuan)", f"Rp {v_pdrb:,.0f}" if v_pdrb else "—",
                        f"{pdrb_ly}", d_pdrb, "%"), unsafe_allow_html=True)
     with c2:
         st.markdown(kpi("Pengangguran TPT", f"{v_tpt:.2f}%" if v_tpt else "—",
@@ -973,11 +973,19 @@ def render_map():
         st.markdown('<div class="filter-bar">', unsafe_allow_html=True)
         fc1, fc2, fc3, fc4 = st.columns([2, 2, 2, 2])
         with fc1:
-            map_ind = st.selectbox("📊 Indikator Peta", ["PDRB/Kapita", "Pengangguran (TPT)", "Kemiskinan", "Gini Ratio", "Inflasi"], key="map_ind")
+            map_ind = st.selectbox(
+                "📊 Indikator Peta",
+                ["PDRB/Kapita", "Pengangguran (TPT)", "Kemiskinan", "Gini Ratio", "Inflasi"],
+                key="map_ind"
+            )
         with fc2:
             map_year = st.selectbox("📅 Tahun", years[::-1], key="map_year")
         with fc3:
-            map_style = st.selectbox("🎨 Skema warna", ["OrRd", "Teal", "Viridis", "Plasma", "Cividis", "Reds", "Purp", "YlOrBr"], key="map_style")
+            map_style = st.selectbox(
+                "🎨 Skema warna",
+                ["OrRd", "Teal", "Viridis", "Plasma", "Cividis", "Reds", "Purp", "YlOrBr"],
+                key="map_style"
+            )
         with fc4:
             mapbox_style = st.selectbox("🗺️ Map Style", ["carto-darkmatter", "carto-positron", "open-street-map"])
         st.markdown('</div>', unsafe_allow_html=True)
@@ -988,13 +996,14 @@ def render_map():
     st.markdown(f"<div class='chip'>📌 {geo_label}</div>", unsafe_allow_html=True)
 
     df_ind, title, cs_hint, unit = map_indicator(map_ind)
+    is_pdrb = map_ind == "PDRB/Kapita"
     cs = map_style if map_style not in ["Teal", "Purp"] else cs_hint
 
     df_ind = df_ind.copy()
     df_ind["Provinsi"] = df_ind["Provinsi"].astype(str).str.strip().str.upper()
     df_ind["provinsi_name"] = df_ind["Provinsi"].map(NAME_MAP)
     df_map = df_ind[df_ind["Tahun"] == map_year].copy()
-    
+
     if use_34:
         df_map = df_map[~df_map["Provinsi"].isin(PROV_BARU)]
     df_map = df_map.dropna(subset=["provinsi_name", "value"])
@@ -1010,37 +1019,69 @@ def render_map():
     df_map["share"] = (df_map["value"] / df_map["value"].sum() * 100).round(2)
     df_map["delta_vs_mean"] = (df_map["value"] - df_map["value"].mean()).round(2)
 
+    if is_pdrb:
+        df_map["value_display"] = df_map["value"].apply(format_rupiah_auto)
+        df_map["delta_display"] = df_map["delta_vs_mean"].apply(
+            lambda x: format_delta_display(x, unit="Rp")
+        )
+    else:
+        df_map["value_display"] = df_map["value"].apply(lambda x: fmt_v(x, 2, unit))
+        df_map["delta_display"] = df_map["delta_vs_mean"].apply(
+            lambda x: format_delta_display(x, unit=unit, digits=2)
+        )
+
     sec(f"🗺️ Peta Choropleth — {map_ind} · {map_year}", geo_label)
 
     fig_map = px.choropleth_mapbox(
-        df_map, geojson=geojson_active,
-        locations="provinsi_name", featureidkey="properties.PROVINSI",
-        color="value", color_continuous_scale=cs,
+        df_map,
+        geojson=geojson_active,
+        locations="provinsi_name",
+        featureidkey="properties.PROVINSI",
+        color="value",
+        color_continuous_scale=cs,
         range_color=(float(df_map["value"].min()), float(df_map["value"].max())),
-        mapbox_style=mapbox_style, zoom=3.6, center={"lat": -2.5, "lon": 118},
-        opacity=0.88, labels={"value": title},
-        custom_data=["rank", "share", "delta_vs_mean", "provinsi_name"]
+        mapbox_style=mapbox_style,
+        zoom=3.8,
+        center={"lat": -2.5, "lon": 118},
+        opacity=0.88,
+        labels={"value": title},
+        custom_data=["rank", "share", "delta_display", "provinsi_name", "value_display"]
     )
-    fig_map.update_traces(
-        hovertemplate=(
-            "<b>%{customdata[3]}</b><br>"
-            f"{title}: <b>%{{z:,.2f}}{unit}</b><br>"
-            "Rank Nasional: <b>#%{customdata[0]}</b> dari " + str(len(df_map)) + "<br>"
-            "Share: <b>%{customdata[1]:.2f}%</b><br>"
-            "vs rata-rata: <b>%{customdata[2]:+.2f}</b><extra></extra>"
+
+    if is_pdrb:
+        hovertemplate = (
+            "<b>%{{customdata[3]}}</b><br>"
+            f"{title}: <b>%{{customdata[4]}}</b><br>"
+            "Rank Nasional: <b>#%{{customdata[0]}}</b> dari " + str(len(df_map)) + "<br>"
+            "Share: <b>%{{customdata[1]:.2f}}%</b><br>"
+            "vs rata-rata: <b>%{{customdata[2]}}</b><extra></extra>"
         )
-    )
+    else:
+        hovertemplate = (
+            "<b>%{{customdata[3]}}</b><br>"
+            f"{title}: <b>%{{z:,.2f}} {unit}</b><br>"
+            "Rank Nasional: <b>#%{{customdata[0]}}</b> dari " + str(len(df_map)) + "<br>"
+            "Share: <b>%{{customdata[1]:.2f}}%</b><br>"
+            "vs rata-rata: <b>%{{customdata[2]}}</b><extra></extra>"
+        )
+
+    fig_map.update_traces(hovertemplate=hovertemplate)
+
     fig_map.update_layout(
-        margin={"r": 0, "t": 0, "l": 0, "b": 0}, height=540,
+        margin={"r": 0, "t": 0, "l": 0, "b": 0},
+        height=540,
         paper_bgcolor="rgba(11,15,25,0)",
         coloraxis_colorbar=dict(
-            thickness=12, len=0.62,
-            title=dict(text=unit, font=dict(color="#9aa5be")),
+            thickness=12,
+            len=0.62,
+            title=dict(text=("Rp" if is_pdrb else unit), font=dict(color="#9aa5be")),
             tickfont=dict(color="#9aa5be"),
             bgcolor="rgba(17,24,39,0.82)",
-            bordercolor="rgba(255,255,255,.1)", borderwidth=1,
+            bordercolor="rgba(255,255,255,.1)",
+            borderwidth=1,
         )
     )
+
     st.plotly_chart(fig_map, use_container_width=True)
 
     avg_v = df_map["value"].mean()
@@ -1050,30 +1091,41 @@ def render_map():
     top_p = df_map.loc[df_map["value"].idxmax(), "provinsi_name"]
     bot_p = df_map.loc[df_map["value"].idxmin(), "provinsi_name"]
 
-    insight_callout(f"Insight Peta — {map_ind} {map_year}", [
-        f"<b>Tertinggi:</b> {top_p} ({fmt_v(max_v, 2, unit)})",
-        f"<b>Terendah:</b> {bot_p} ({fmt_v(min_v, 2, unit)})",
-        f"<b>Rata-rata:</b> {fmt_v(avg_v, 2, unit)} · <b>Std dev:</b> {fmt_v(std_v, 2, unit)}",
-        f"<b>CV:</b> {std_v / avg_v:.2f} — ketimpangan antarprovinsi {'tinggi ⚠️' if std_v / avg_v > 0.4 else 'sedang 🟡' if std_v / avg_v > 0.2 else 'rendah ✅'}",
-    ], tone="info")
+    format_main = format_rupiah_auto if is_pdrb else (lambda x: fmt_v(x, 2, unit))
+
+    insight_callout(
+        f"Insight Peta — {map_ind} {map_year}",
+        [
+            f"<b>Tertinggi:</b> {top_p} ({format_main(max_v)})",
+            f"<b>Terendah:</b> {bot_p} ({format_main(min_v)})",
+            f"<b>Rata-rata:</b> {format_main(avg_v)} · <b>Std dev:</b> {format_main(std_v)}",
+            f"<b>CV:</b> {std_v / avg_v:.2f} — ketimpangan antarprovinsi {'tinggi ⚠️' if std_v / avg_v > 0.4 else 'sedang 🟡' if std_v / avg_v > 0.2 else 'rendah ✅'}",
+        ],
+        tone="info"
+    )
 
     col_rank, col_stat = st.columns([2.2, 1])
     with col_rank:
         sec("Ranking Provinsi", f"{len(df_map)} provinsi")
         df_rank = df_map[["rank", "provinsi_name", "value", "share"]].sort_values("rank").copy()
         df_rank.columns = ["Rank", "Provinsi", title, "Share (%)"]
-        df_rank = df_rank.reset_index(drop=True)
-        st.dataframe(
-            df_rank.style.background_gradient(cmap="coolwarm", subset=[title]).format({"Rank": "{:.0f}", title: "{:.2f}", "Share (%)": "{:.2f}"}),
-            use_container_width=True, height=320,
-        )
+
+        if is_pdrb:
+            df_rank[title] = df_rank[title].apply(format_rupiah_auto)
+            st.dataframe(df_rank, use_container_width=True, height=320)
+        else:
+            st.dataframe(
+                df_rank.style.background_gradient(cmap="coolwarm", subset=[title]).format({title: "{:.2f}", "Share (%)": "{:.2f}"}),
+                use_container_width=True,
+                height=320,
+            )
 
     with col_stat:
         sec("Quick Stats", str(map_year))
-        st.metric("Rata-rata", fmt_v(avg_v, 2, unit))
-        st.metric("Tertinggi", fmt_v(max_v, 2, unit), top_p)
-        st.metric("Terendah", fmt_v(min_v, 2, unit), bot_p)
-        st.metric("Std Dev", fmt_v(std_v, 2, unit))
+        st.metric("Rata-rata", format_main(avg_v))
+        st.metric("Tertinggi", format_main(max_v), top_p)
+        st.metric("Terendah", format_main(min_v), bot_p)
+        st.metric("Std Dev", format_main(std_v))
         above = len(df_map[df_map["value"] > avg_v])
         st.metric("Di atas rata-rata", f"{above} provinsi")
 
@@ -1185,7 +1237,7 @@ def render_comparison():
     if ind_cmp == "PDRB per Kapita (Rp Ribu)":
         df_c = non_country(pdrb)[pdrb["Tahun"] == yr_cmp][["Provinsi", "PDRB_PerKapita_RibuRupiah"]].copy()
         df_c.columns = ["Provinsi", "Nilai"]
-        unit_c = "Rp Ribu"
+        unit_c = "dalam Ribuan"
         color_c = COLORS["green"]
         invert_better = False
     elif ind_cmp == "Pengangguran TPT (%)":
@@ -1275,7 +1327,7 @@ def render_comparison():
         inflasi_agg = inflasi.groupby(["Provinsi", "Tahun"], as_index=False)["Inflasi_YoY_Persen"].mean()
 
         metric_defs = [
-            ("PDRB/Kapita", non_country(pdrb)[pdrb["Tahun"] == yr_cmp][["Provinsi", "PDRB_PerKapita_RibuRupiah"]].rename(columns={"PDRB_PerKapita_RibuRupiah": "Nilai"}), False, "Rp Ribu"),
+            ("Rp", "PDRB/Kapita", non_country(pdrb)[pdrb["Tahun"] == yr_cmp][["Provinsi", "PDRB_PerKapita_RibuRupiah"]].rename(columns={"PDRB_PerKapita_RibuRupiah": "Nilai"}), False),
             ("TPT (%)", non_country(tpt)[(non_country(tpt)["Periode"] == "Agustus") & (non_country(tpt)["Tahun"] == yr_cmp)][["Provinsi", "TPT_Persen"]].rename(columns={"TPT_Persen": "Nilai"}), True, "%"),
             ("Kemiskinan (%)", non_country(miskin)[(non_country(miskin)["Daerah"] == "Jumlah") & (non_country(miskin)["Semester"] == "Semester 1 (Maret)") & (non_country(miskin)["Tahun"] == yr_cmp)][["Provinsi", "Persen_Penduduk_Miskin"]].rename(columns={"Persen_Penduduk_Miskin": "Nilai"}), True, "%"),
             ("Gini", non_country(gini)[(non_country(gini)["Daerah"] == "Perkotaan+Perdesaan") & (non_country(gini)["Semester"] == "Semester 1 (Maret)") & (non_country(gini)["Tahun"] == yr_cmp)][["Provinsi", "Gini_Ratio"]].rename(columns={"Gini_Ratio": "Nilai"}), True, ""),
