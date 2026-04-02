@@ -1003,7 +1003,7 @@ def render_map():
         locations="provinsi_name", featureidkey="properties.PROVINSI",
         color="value", color_continuous_scale=cs,
         range_color=(float(df_map["value"].min()), float(df_map["value"].max())),
-        mapbox_style=mapbox_style, zoom=3.8, center={"lat": -2.5, "lon": 118},
+        mapbox_style=mapbox_style, zoom=3.3, center={"lat": -2.5, "lon": 118},
         opacity=0.88, labels={"value": title},
         custom_data=["rank", "share", "delta_vs_mean", "provinsi_name"]
     )
