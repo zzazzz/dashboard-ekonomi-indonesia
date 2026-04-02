@@ -24,14 +24,16 @@
 > Untuk pengalaman interaktif penuh, jalankan secara lokal atau buka Live Demo.
 
 ### 📊 Ringkasan — KPI Nasional & Tren Utama
-![Ringkasan](assets/screenshot_ringkasan.png)
+![Ringkasan](<img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/9eaa2448-3ec0-4c91-96c1-ddd0da8f7409" />
+)
 
 > Halaman utama dengan 5 KPI card nasional (PDRB/Kapita, TPT, Kemiskinan, Gini Ratio, Inflasi YoY), dilengkapi delta YoY berwarna hijau/merah. Di bawahnya dual chart: Tren PDRB per Kapita dan TPT & Kemiskinan Nasional. Filter rentang tahun (2016–2025) tersedia di atas.
 
 ---
 
 ### 🗺️ Peta — Choropleth Interaktif Indonesia
-![Peta Choropleth](assets/screenshot_peta.png)
+![Peta Choropleth](<img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/14e423f6-55f2-4d8f-9723-77150f07d006" />
+)
 
 > Visualisasi spasial seluruh provinsi dengan warna gradasi. Mendukung 5 indikator, pilihan tahun, skema warna (Teal/Reds/Purp/YlOrBr/OrRd), dan map style (carto-darkmatter dll). Hover di atas provinsi untuk nilai eksak.
 
