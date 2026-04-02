@@ -1880,26 +1880,45 @@ def build_cluster_frame(latest_year: int):
     m_cl = non_country(miskin)[(non_country(miskin)["Daerah"] == "Jumlah") & (non_country(miskin)["Semester"] == "Semester 1 (Maret)") & (non_country(miskin)["Tahun"] == latest_year)][["Provinsi", "Persen_Penduduk_Miskin"]]
     g_cl = non_country(gini)[(non_country(gini)["Daerah"] == "Perkotaan+Perdesaan") & (non_country(gini)["Semester"] == "Semester 1 (Maret)") & (non_country(gini)["Tahun"] == latest_year)][["Provinsi", "Gini_Ratio"]]
 
-    cl_df = p_cl.merge(t_cl, on="Provinsi", how="inner").merge(m_cl, on="Provinsi", how="inner").merge(g_cl, on="Provinsi", how="inner")
+    cl_df = p_cl.merge(t_cl, on="Provinsi", how="inner") \
+                .merge(m_cl, on="Provinsi", how="inner") \
+                .merge(g_cl, on="Provinsi", how="inner")
+
     if cl_df.empty:
         return cl_df, None, None, None, None, None
 
+    # ===============================
+    # ✅ FIX UNIT → JUTA RUPIAH
+    # ===============================
+    cl_df["PDRB_Juta"] = cl_df["PDRB_PerKapita_RibuRupiah"] / 1000
+
     cl_df["label"] = cl_df["Provinsi"].map(clean_label)
+
+    # tetap pakai ribu untuk log (lebih stabil)
     cl_df["PDRB_log"] = np.log1p(cl_df["PDRB_PerKapita_RibuRupiah"])
 
     feats = ["PDRB_log", "TPT_Persen", "Persen_Penduduk_Miskin", "Gini_Ratio"]
+
     X = cl_df[feats].copy().fillna(cl_df[feats].median(numeric_only=True))
+
     scaler = StandardScaler()
     Xs = scaler.fit_transform(X)
 
+    # ===============================
+    # AUTO K SELECTION (SILHOUETTE)
+    # ===============================
     best_k, best_score, best_labels = 3, -1, None
     max_k = min(6, len(cl_df) - 1)
+
     for k in range(2, max_k + 1):
         km = KMeans(n_clusters=k, random_state=42, n_init=25)
         labels = km.fit_predict(Xs)
+
         if len(set(labels)) < 2:
             continue
+
         score = silhouette_score(Xs, labels)
+
         if score > best_score:
             best_k, best_score, best_labels = k, score, labels
 
@@ -1909,13 +1928,25 @@ def build_cluster_frame(latest_year: int):
         best_score = silhouette_score(Xs, best_labels) if len(set(best_labels)) > 1 else np.nan
 
     cl_df["cluster_id"] = best_labels.astype(int)
-    profile = cl_df.groupby("cluster_id")[ ["PDRB_PerKapita_RibuRupiah", "TPT_Persen", "Persen_Penduduk_Miskin", "Gini_Ratio"] ].mean()
-    order = profile["PDRB_PerKapita_RibuRupiah"].sort_values(ascending=False).index.tolist()
+
+    # ===============================
+    # LABEL CLUSTER BERDASARKAN PDRB
+    # ===============================
+    profile = cl_df.groupby("cluster_id")[[
+        "PDRB_Juta", "TPT_Persen", "Persen_Penduduk_Miskin", "Gini_Ratio"
+    ]].mean()
+
+    order = profile["PDRB_Juta"].sort_values(ascending=False).index.tolist()
+
     cluster_map = {cid: f"Cluster {chr(65+i)}" for i, cid in enumerate(order)}
     cl_df["cluster_name"] = cl_df["cluster_id"].map(cluster_map)
 
+    # ===============================
+    # PCA
+    # ===============================
     pca = PCA(n_components=2, random_state=42)
     pcs = pca.fit_transform(Xs)
+
     cl_df["PC1"] = pcs[:, 0]
     cl_df["PC2"] = pcs[:, 1]
 
@@ -1925,28 +1956,59 @@ def build_cluster_frame(latest_year: int):
 def render_ai():
     years = years_of(pdrb)
     latest_year = max(years)
+
     sec("Forecast Ringkas", f"Basis {latest_year}")
 
-    # simple forecast using linear trend for PDRB
+    # ===============================
+    # FORECAST (SUDAH DALAM JUTA)
+    # ===============================
     nat_p = pdrb[pdrb["Provinsi"].str.upper() == "INDONESIA"].sort_values("Tahun")
     nat_p = nat_p[["Tahun", "PDRB_PerKapita_RibuRupiah"]].dropna()
+
     if len(nat_p) >= 3:
+        nat_p["PDRB_Juta"] = nat_p["PDRB_PerKapita_RibuRupiah"] / 1000
+
         x = nat_p["Tahun"].astype(int).to_numpy()
-        y = nat_p["PDRB_PerKapita_RibuRupiah"].to_numpy(dtype=float)
+        y = nat_p["PDRB_Juta"].to_numpy(dtype=float)
+
         coef = np.polyfit(x, y, 1)
+
         future_years = np.array([latest_year + i for i in range(1, 6)])
         pred = np.polyval(coef, future_years)
+
         fdf = pd.DataFrame({"Tahun": future_years, "Prediksi_PDRB": pred})
-        fig_f = px.line(pd.concat([nat_p.rename(columns={"PDRB_PerKapita_RibuRupiah": "Nilai"}), fdf.rename(columns={"Prediksi_PDRB": "Nilai"})], ignore_index=True), x="Tahun", y="Nilai")
+
+        fig_f = px.line(
+            pd.concat([
+                nat_p.rename(columns={"PDRB_Juta": "Nilai"})[["Tahun", "Nilai"]],
+                fdf.rename(columns={"Prediksi_PDRB": "Nilai"})
+            ], ignore_index=True),
+            x="Tahun", y="Nilai"
+        )
+
         fig_f.add_vline(x=latest_year, line_dash="dot", line_color="rgba(255,255,255,0.35)")
-        apply_layout(fig_f, h=300, yaxis=dict(title="Rp Ribu", gridcolor="rgba(255,255,255,0.04)"))
+
+        apply_layout(fig_f, h=300, yaxis=dict(title="Rp Juta"))
+
         st.plotly_chart(fig_f, use_container_width=True)
-        insight_callout("Forecast sederhana", [f"Proyeksi 5 tahun ke depan berdasarkan tren historis.", f"Prediksi {future_years[-1]}: <b>Rp {pred[-1]/1000:,.0f} Juta</b>"], tone="warn")
+
+        insight_callout(
+            "Forecast sederhana",
+            [
+                "Proyeksi 5 tahun berbasis tren linear historis",
+                f"Prediksi {future_years[-1]}: <b>Rp {pred[-1]:,.1f} Juta</b>"
+            ],
+            tone="warn"
+        )
 
     st.markdown("<br>", unsafe_allow_html=True)
+
+    # ===============================
+    # CLUSTERING
+    # ===============================
     sec("Clustering Provinsi — K-Means Otomatis", "PCA 2D + silhouette selection")
-    result = build_cluster_frame(latest_year)
-    cl_df, feats, pca, best_k, best_score, scaler = result
+
+    cl_df, feats, pca, best_k, best_score, scaler = build_cluster_frame(latest_year)
 
     if cl_df is None or cl_df.empty:
         st.warning("Data clustering tidak tersedia.")
@@ -1958,57 +2020,112 @@ def render_ai():
         y="PC2",
         color="cluster_name",
         hover_name="label",
-        size="PDRB_PerKapita_RibuRupiah",
-        color_discrete_sequence=[COLORS["green"], COLORS["orange"], COLORS["red"], COLORS["blue"], COLORS["purple"]],
-        labels={"PC1": f"PC1 (explained {pca.explained_variance_ratio_[0] * 100:.1f}%)", "PC2": f"PC2 (explained {pca.explained_variance_ratio_[1] * 100:.1f}%)", "cluster_name": "Cluster"}
+        size="PDRB_Juta",
+        labels={
+            "PC1": f"PC1 ({pca.explained_variance_ratio_[0]*100:.1f}%)",
+            "PC2": f"PC2 ({pca.explained_variance_ratio_[1]*100:.1f}%)"
+        }
     )
+
     fig_cl.update_traces(
-        hovertemplate=(
-            "<b>%{hovertext}</b><br>"
-            "Cluster: %{fullData.name}<br>"
-            "PDRB: Rp %{customdata[0]:,.0f} Ribu<br>"
-            "TPT: %{customdata[1]:.2f}%<br>"
-            "Kemiskinan: %{customdata[2]:.2f}%<br>"
-            "Gini: %{customdata[3]:.3f}<extra></extra>"
-        ),
         customdata=np.stack([
-            cl_df["PDRB_PerKapita_RibuRupiah"],
+            cl_df["PDRB_Juta"],
             cl_df["TPT_Persen"],
             cl_df["Persen_Penduduk_Miskin"],
             cl_df["Gini_Ratio"],
-        ], axis=-1)
+        ], axis=-1),
+        hovertemplate=(
+            "<b>%{hovertext}</b><br>"
+            "Cluster: %{fullData.name}<br>"
+            "PDRB: Rp %{customdata[0]:,.1f} Juta<br>"
+            "TPT: %{customdata[1]:.2f}%<br>"
+            "Kemiskinan: %{customdata[2]:.2f}%<br>"
+            "Gini: %{customdata[3]:.3f}<extra></extra>"
+        )
     )
-    apply_layout(fig_cl, h=420, legend_h=True, xaxis=dict(title=f"PC1 (explained {pca.explained_variance_ratio_[0] * 100:.1f}%)"), yaxis=dict(title=f"PC2 (explained {pca.explained_variance_ratio_[1] * 100:.1f}%)"))
+
+    apply_layout(fig_cl, h=420)
     st.plotly_chart(fig_cl, use_container_width=True)
+
     st.caption(f"Silhouette terbaik: k={best_k} | score={best_score:.3f}")
 
-    cluster_profile = cl_df.groupby("cluster_name")[ ["PDRB_PerKapita_RibuRupiah", "TPT_Persen", "Persen_Penduduk_Miskin", "Gini_Ratio"] ].mean().reset_index()
-    heat = cluster_profile.set_index("cluster_name")
-    heat_z = heat.copy()
-    for c in heat.columns:
-        sd = heat[c].std()
-        heat_z[c] = 0.0 if pd.isna(sd) or sd == 0 else (heat[c] - heat[c].mean()) / sd
+    # ===============================
+    # PROFILE CLUSTER
+    # ===============================
+    cluster_profile = cl_df.groupby("cluster_name")[[
+        "PDRB_Juta", "TPT_Persen", "Persen_Penduduk_Miskin", "Gini_Ratio"
+    ]].mean().reset_index()
 
-    sec("Profil Cluster (standardized)", "z-score heatmap")
+    # Z-SCORE
+    heat = cluster_profile.set_index("cluster_name")
+    heat_z = (heat - heat.mean()) / heat.std()
+
+    sec("Profil Cluster (Standardized)", "Z-score heatmap")
+
     fig_prof = px.imshow(
         heat_z,
         text_auto=".2f",
-        aspect="auto",
         color_continuous_scale="RdBu",
-        zmin=-2,
-        zmax=2,
-        labels=dict(x="Indikator", y="Cluster", color="Z-score"),
+        zmin=-2, zmax=2
     )
-    fig_prof.update_layout(height=360, margin=dict(t=10, b=10, l=10, r=10))
+
     st.plotly_chart(fig_prof, use_container_width=True)
 
-    c1, c2 = st.columns([1.15, 1])
+    # ===============================
+    # TABLE + SUMMARY
+    # ===============================
+    c1, c2 = st.columns([1.2, 1])
+
     with c1:
-        st.dataframe(cl_df[["label", "cluster_name", "PDRB_PerKapita_RibuRupiah", "TPT_Persen", "Persen_Penduduk_Miskin", "Gini_Ratio"]].sort_values(["cluster_name", "PDRB_PerKapita_RibuRupiah"], ascending=[True, False]), use_container_width=True, height=300)
+        st.dataframe(
+            cl_df[[
+                "label", "cluster_name", "PDRB_Juta",
+                "TPT_Persen", "Persen_Penduduk_Miskin", "Gini_Ratio"
+            ]]
+            .sort_values(["cluster_name", "PDRB_Juta"], ascending=[True, False])
+            .style.format({
+                "PDRB_Juta": "Rp {:.1f} Juta",
+                "TPT_Persen": "{:.2f}%",
+                "Persen_Penduduk_Miskin": "{:.2f}%",
+                "Gini_Ratio": "{:.3f}"
+            }),
+            use_container_width=True,
+            height=300
+        )
+
     with c2:
         st.markdown("#### Ringkasan Cluster")
-        summary = cl_df.groupby("cluster_name")[ ["PDRB_PerKapita_RibuRupiah", "TPT_Persen", "Persen_Penduduk_Miskin", "Gini_Ratio"] ].mean().sort_values("PDRB_PerKapita_RibuRupiah", ascending=False)
-        st.dataframe(summary.style.format("{:.2f}"), use_container_width=True, height=300)
+
+        summary = cl_df.groupby("cluster_name")[[
+            "PDRB_Juta", "TPT_Persen", "Persen_Penduduk_Miskin", "Gini_Ratio"
+        ]].mean().sort_values("PDRB_Juta", ascending=False)
+
+        st.dataframe(
+            summary.style.format({
+                "PDRB_Juta": "Rp {:.1f} Juta",
+                "TPT_Persen": "{:.2f}%",
+                "Persen_Penduduk_Miskin": "{:.2f}%",
+                "Gini_Ratio": "{:.3f}"
+            }),
+            use_container_width=True,
+            height=300
+        )
+
+        # ===============================
+        # AUTO INSIGHT
+        # ===============================
+        top_cluster = summary.index[0]
+        bottom_cluster = summary.index[-1]
+
+        insight_callout(
+            "Insight Utama",
+            [
+                f"{top_cluster} → PDRB tertinggi (~Rp {summary.iloc[0]['PDRB_Juta']:.1f} Juta)",
+                f"{bottom_cluster} → PDRB terendah (~Rp {summary.iloc[-1]['PDRB_Juta']:.1f} Juta)",
+                "Semakin tinggi PDRB → kemiskinan cenderung lebih rendah"
+            ],
+            tone="good"
+        )
 
 # =========================================================
 # TAB: LAINNYA
