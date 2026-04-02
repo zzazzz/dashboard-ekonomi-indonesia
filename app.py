@@ -1025,7 +1025,8 @@ def render_map():
             tickfont=dict(color="#9aa5be"),
             bgcolor="rgba(17,24,39,0.82)",
             bordercolor="rgba(255,255,255,.1)", borderwidth=1,
-        )
+        ),
+        uirevision=True
     )
     st.plotly_chart(fig_map, use_container_width=True)
 
