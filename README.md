@@ -12,7 +12,7 @@
 **Analisis interaktif indikator makroekonomi Indonesia**  
 **38 provinsi · 2016–2026 · Data BPS · 9 modul analisis**
 
-[🚀 Live Demo](#-live-demo) · [📸 Screenshots](#-screenshots) · [📦 Instalasi](#-instalasi-lokal) · [☁️ Deploy](#️-deployment) · [🎬 Screen Recording](#-soal-screen-recording-video-100-mb)
+[🚀 Live Dashboard](#-live-demo) · [📸 Screenshots](#-screenshots) · [📦 Instalasi](#-instalasi-lokal) · [☁️ Deploy](#️-deployment) · [🎬 Screen Recording](#-soal-screen-recording-video-100-mb)
 
 </div>
 
@@ -390,7 +390,7 @@ font = "sans serif"
 
 ---
 
-## 🚀 Live Demo
+## 🚀 Live Dashboard
 
 ```
 🔗 https://dashboard-ekonomi-indonesia.streamlit.app/
