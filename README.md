@@ -98,8 +98,6 @@ Klik thumbnail di bawah untuk menonton demo lengkap dashboard secara langsung:
 
 ## 🗺️ Navigasi & Arsitektur Tab
 
-Aplikasi menggunakan **session state routing kustom** — dropdown sidebar memanggil fungsi `render_*()` yang sesuai, bukan `st.tabs()` bawaan Streamlit.
-
 ```python
 TAB_MAIN = [
     ("summary",    "📊 Ringkasan"),    # → render_summary()
@@ -184,20 +182,10 @@ indonesia-dashboard/
 ├── Data/
 │   └── Indonesia Dashboard Data Clean.xlsx   # 7 sheet dataset BPS
 │
-├── Maps/
-│   ├── prov_34_fixed.geojson           # GeoJSON 34 provinsi lama
-│   └── 38 Provinsi Indonesia - Provinsi.json # GeoJSON 38 provinsi + DOB Papua
-│
-└── assets/                             # Screenshot untuk README
-    ├── screenshot_ringkasan.png
-    ├── screenshot_peta.png
-    ├── screenshot_perbandingan.png
-    ├── screenshot_neraca.png
-    ├── screenshot_penduduk.png
-    ├── screenshot_forecast.png
-    ├── screenshot_ai_forecast.png
-    ├── screenshot_ai_clustering.png
-    └── screenshot_lainnya.png
+└── Maps/
+    ├── prov_34_fixed.geojson           # GeoJSON 34 provinsi lama
+    └── 38 Provinsi Indonesia - Provinsi.json # GeoJSON 38 provinsi + DOB Papua
+
 ```
 
 > ⚠️ **Penting:** Path data di-hardcode di `app.py` sebagai `"Data/Indonesia Dashboard Data Clean.xlsx"` dan `"Maps/prov_34_fixed.geojson"`. Pastikan struktur folder sesuai persis.
